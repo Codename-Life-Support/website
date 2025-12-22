@@ -7,38 +7,82 @@
     <!-- Stylesheet --> 
     <link rel="stylesheet" href="index.css">
     <!-- Scripts -->
+    <script src="resources/DLC_ID.js"></script>
+    <script src="resources/helpers.js"></script>
     <script src="index.js"></script>
 </head>
 <body>
-    <h1>Servers</h1>
-
     <table>
         <thead>
             <tr>
                 <th>Server Name</th>
                 <th>Creator</th>
-                <th>Up Time</th>
+                <th>Created</th>
+                <th>Map</th>
                 <th>Mods</th>
+                <th>Players</th>
                 <th>Join Link</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td>Example Session</td>
-                <td>Connor</td>
-                <td>04:32</td>
-                <td>None</td>
-                <td><a class="join-link" href="#">Join</a></td>
-            </tr>
-            <tr>
-                <td>Another Session</td>
-                <td>example auth</td>
-                <td>09:15</td>
-                <td>Mod A, Mod B</td>
-                <td><a class="join-link" href="#">Join</a></td>
-            </tr>
+        <tbody id="server_table">
+
         </tbody>
     </table>
+    <!-- add a sliding wheel thing that we can toggle to indicate that its fetching data from the servers-->
+    <div id="loading_spinner"  class="spinner">
+        <p>Loading...</p>
+    </div>
+    <div>
+        <p>Note: Click "Refresh Servers" to load the latest server data.</p>
+
+    </div>
+
+
+    <!-- Fullscreen overlay -->
+    <div id="prompt_box" 
+        style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        ">
+
+        <!-- Centered white box -->
+        <div style="background: white;
+            padding: 20px 30px;
+            border: 2px solid black;
+            border-radius: 8px;
+            max-width: 500px;
+            text-align: left;
+        ">
+            <h2>Ensure required content is installed</h2>
+            <span>Games:</span><a href="steam://launch/1064221">H1: Campaign</a><a href="steam://launch/1064270">H2: Campaign</a>
+            <br/>
+            <span>Mods:</span><a href="steam://url/CommunityFilePage/3577874470">Mod A</a>
+            <br/>
+            <br/>
+            <b style="text-align: left;">other mods in session...</b><br/>
+            <span>Games:</span><a href="steam://launch/1064221">H1: Campaign</a><a href="steam://launch/1064270">H2: Campaign</a>
+            <br/>
+            <span>Mods:</span><a href="steam://url/CommunityFilePage/3577874470">Mod A</a><a href="steam://url/CommunityFilePage/3577874470">Mod B</a>
+            <br/>
+            <br/>
+            <!-- horizontally centered div -->
+            <div class="prompt-buttons">
+                <button class="btn btn-continue" onclick="">Continue</button>
+                <button class="btn btn-cancel" onclick="">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+
+    <h1 id="server_count_text">Servers</h1>
+    <button onclick="LoadServers()">Refresh Servers</button>
 
 </body>
 </html>
