@@ -12,12 +12,16 @@
     <script src="index.js"></script>
 </head>
 <body>
+    <h1 id="server_count_text">Servers</h1>
+    <button onclick="LoadServers()">Refresh Servers</button>
+    
     <table>
         <thead>
             <tr>
                 <th>Server Name</th>
                 <th>Creator</th>
                 <th>Created</th>
+                <th>Status</th>
                 <th>Map</th>
                 <th>Mods</th>
                 <th>Players</th>
@@ -39,50 +43,88 @@
 
 
     <!-- Fullscreen overlay -->
-    <div id="prompt_box" 
-        style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        ">
-
+    <div id="prompt_background" class="prompt_background">
         <!-- Centered white box -->
-        <div style="background: white;
-            padding: 20px 30px;
-            border: 2px solid black;
-            border-radius: 8px;
-            max-width: 500px;
-            text-align: left;
-        ">
-            <h2>Ensure required content is installed</h2>
-            <span>Games:</span><a href="steam://launch/1064221">H1: Campaign</a><a href="steam://launch/1064270">H2: Campaign</a>
+        <div class="prompt_box">
+            <h3 id="details_server_name">SERVER NAME</h3>
+            <span id="details_map_name" style="display: block;">MAP for 10 mins</span>
+            <span id="details_player_count" style="display: block;">Players: 0/16</span>
+            <span id="details_created_t">Started 20 mins ago by </span>
+            <a id="details_creator">author</a>
+            <span id="details_refresh_t" style="display: block;">last refreshed: 1 mins ago</span>
             <br/>
-            <span>Mods:</span><a href="steam://url/CommunityFilePage/3577874470">Mod A</a>
+            <span id="details_desc">
+            DESCRIPTION TEXT GOES HERE desc line 2 desc line 3
+            </span>
+
+
+            <h3>Ensure required content is installed</h3>
+            <div>
+                <div class="install_game_wrapper" id="quick_odst_wrapper">
+                    <button id="quick_odst_install" class="install_game_button" onclick="window.open('steam://launch/1097224');"><img title="INSTALL Halo 3 ODST" class="install_game_image" src="resources/img/odst.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="quick_reach_wrapper">
+                    <button id="quick_reach_mp_install" class="install_game_button" onclick="window.open('steam://launch/1097224');"><img title="INSTALL Halo Reach MP"       class="install_game_image" src="resources/img/reach.png"></img></button><!--
+                 --><button id="quick_reach_install"    class="install_game_button" onclick="window.open('steam://launch/1064220');"><img title="INSTALL Halo Reach Campaign" class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="quick_h1_wrapper">
+                    <button id="quick_h1_mp_install" class="install_game_button" onclick="window.open('steam://launch/1080080');"><img title="INSTALL Halo 1 MP"       class="install_game_image" src="resources/img/h1.png"></img></button><!--
+                 --><button id="quick_h1_install"    class="install_game_button" onclick="window.open('steam://launch/1064221');"><img title="INSTALL Halo 1 Campaign" class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="quick_h2_wrapper">
+                    <button id="quick_h2_mp_install" class="install_game_button" onclick="window.open('steam://launch/1097223');"><img title="INSTALL Halo 2 MP (includes anniversary)" class="install_game_image" src="resources/img/h2a.png"></img></button><!--
+                 --><button id="quick_h2_install"    class="install_game_button" onclick="window.open('steam://launch/1064270');"><img title="INSTALL Halo 2 Campaign"                  class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="quick_h3_wrapper">
+                    <button id="quick_h3_mp_install" class="install_game_button" onclick="window.open('steam://launch/1097222');"><img title="INSTALL Halo 3 MP"       class="install_game_image" src="resources/img/h3.png"></img></button><!--
+                 --><button id="quick_h3_install"    class="install_game_button" onclick="window.open('steam://launch/1064271');"><img title="INSTALL Halo 3 Campaign" class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="quick_h4_wrapper">
+                    <button id="quick_h4_mp_install" class="install_game_button" onclick="window.open('steam://launch/1097220');"><img title="INSTALL Halo 4 MP"       class="install_game_image" src="resources/img/h4.png"></img></button><!--
+                 --><button id="quick_h4_install"    class="install_game_button" onclick="window.open('steam://launch/1064273');"><img title="INSTALL Halo 4 Campaign" class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div>
+            </div>
+            <div id="current_mods_box"></div>
             <br/>
             <br/>
-            <b style="text-align: left;">other mods in session...</b><br/>
-            <span>Games:</span><a href="steam://launch/1064221">H1: Campaign</a><a href="steam://launch/1064270">H2: Campaign</a>
-            <br/>
-            <span>Mods:</span><a href="steam://url/CommunityFilePage/3577874470">Mod A</a><a href="steam://url/CommunityFilePage/3577874470">Mod B</a>
+            <b style="text-align: left;">other mods in session.</b><br/>
+            <div>
+                <div class="install_game_wrapper" id="odst_wrapper" style="display: none;">
+                    <button id="odst_install" class="install_game_button" onclick="window.open('steam://launch/1097224');"><img title="INSTALL Halo 3 ODST" class="install_game_image" src="resources/img/odst.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="reach_wrapper" style="display: none;">
+                    <button id="reach_mp_install" class="install_game_button" onclick="window.open('steam://launch/1097224');"><img title="INSTALL Halo Reach MP"       class="install_game_image" src="resources/img/reach.png"></img></button><!--
+                 --><button id="reach_install"    class="install_game_button" onclick="window.open('steam://launch/1064220');"><img title="INSTALL Halo Reach Campaign" class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="h1_wrapper" style="display: none;">
+                    <button id="h1_mp_install" class="install_game_button" onclick="window.open('steam://launch/1080080');"><img title="INSTALL Halo 1 MP"       class="install_game_image" src="resources/img/h1.png"></img></button><!--
+                 --><button id="h1_install"    class="install_game_button" onclick="window.open('steam://launch/1064221');"><img title="INSTALL Halo 1 Campaign" class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="h2_wrapper" style="display: none;">
+                    <button id="h2_mp_install" class="install_game_button" onclick="window.open('steam://launch/1097223');"><img title="INSTALL Halo 2 MP (includes anniversary)" class="install_game_image" src="resources/img/h2a.png"></img></button><!--
+                 --><button id="h2_install"    class="install_game_button" onclick="window.open('steam://launch/1064270');"><img title="INSTALL Halo 2 Campaign"                  class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="h3_wrapper" style="display: none;">
+                    <button id="h3_mp_install" class="install_game_button" onclick="window.open('steam://launch/1097222');"><img title="INSTALL Halo 3 MP"       class="install_game_image" src="resources/img/h3.png"></img></button><!--
+                 --><button id="h3_install"    class="install_game_button" onclick="window.open('steam://launch/1064271');"><img title="INSTALL Halo 3 Campaign" class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div><!--
+             --><div class="install_game_wrapper" id="h4_wrapper" style="display: none;">
+                    <button id="h4_mp_install" class="install_game_button" onclick="window.open('steam://launch/1097220');"><img title="INSTALL Halo 4 MP"       class="install_game_image" src="resources/img/h4.png"></img></button><!--
+                 --><button id="h4_install"    class="install_game_button" onclick="window.open('steam://launch/1064273');"><img title="INSTALL Halo 4 Campaign" class="install_game_image" src="resources/img/campaign.png"></img></button>
+                </div>
+            </div>
+            <div id="other_mods_box"></div>
             <br/>
             <br/>
             <!-- horizontally centered div -->
             <div class="prompt-buttons">
                 <button class="btn btn-continue" onclick="">Continue</button>
-                <button class="btn btn-cancel" onclick="">Cancel</button>
+                <button class="btn btn-cancel" onclick="UnlockJoinPrompt();">Cancel</button>
             </div>
 
         </div>
     </div>
 
-    <h1 id="server_count_text">Servers</h1>
-    <button onclick="LoadServers()">Refresh Servers</button>
 
 </body>
 </html>

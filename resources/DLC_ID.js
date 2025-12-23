@@ -3,7 +3,6 @@ let DLC_IDs = {
     "1080080" : "H1: Multiplayer",
     "1064270" : "H2: Campaign",
     "1097223" : "H2: Multiplayer",
-    "1097223" : "H2A: Multiplayer",
     "1064271" : "H3: Campaign",
     "1097222" : "H3: Multiplayer",
     "1064272" : "ODST: Campaign",

@@ -13,6 +13,16 @@ function UnlockRefreshServers(){
     let spinner = document.getElementById("loading_spinner");
     spinner.style.display = "none";
 }
+let current_join_url = "";
+function LockJoinPrompt(){
+    prompt_lock = true;
+    document.getElementById("prompt_background").style.display = "flex";
+}
+function UnlockJoinPrompt(){
+    prompt_lock = false;
+    current_join_url = "";
+    document.getElementById("prompt_background").style.display = "none";
+}
 
 function UpdateServerCount(){
     let serverCountText = document.getElementById("server_count_text");
@@ -76,12 +86,18 @@ function RegenerateServers(){
         row.appendChild(createdCell);
 
         let mapCell = document.createElement("td");
-        if (isNullOrWhiteSpace(server.current_required_dlc)){
-            mapCell.textContent = "MAIN MENU | Not in game";
+        let map2Cell = document.createElement("td");
+        if (server.current_required_dlc.length === 0 ){
+            mapCell.textContent = "MAIN MENU ";
+            map2Cell.textContent = "not in game";
         } else {
-            mapCell.textContent = ResolveRequiredDLC(server.current_required_dlc) + " | " + server.current_map_name + " (" + GetTimeSince(server.creation_t) + ")";
+            mapCell.textContent = ResolveRequiredDLC(server.current_required_dlc[0]);
+            map2Cell.textContent = server.current_map_name + " (" + GetTimeSince(server.creation_t) + ")";
         }
         row.appendChild(mapCell);
+        row.appendChild(map2Cell);
+
+
 
         // create links to each mod
         let modsCell = document.createElement("td");
@@ -161,26 +177,149 @@ async function LoadServers(){
     UnlockRefreshServers();
 }
 
+function resetDetails(){
+    document.getElementById("odst_wrapper").style.display = "none";
+    document.getElementById("reach_wrapper").style.display = "none";
+    document.getElementById("h1_wrapper").style.display = "none";
+    document.getElementById("h2_wrapper").style.display = "none";
+    document.getElementById("h3_wrapper").style.display = "none";
+    document.getElementById("h4_wrapper").style.display = "none";
+
+    document.getElementById("quick_odst_wrapper").style.display = "none";
+    document.getElementById("quick_reach_wrapper").style.display = "none";
+    document.getElementById("quick_h1_wrapper").style.display = "none";
+    document.getElementById("quick_h2_wrapper").style.display = "none";
+    document.getElementById("quick_h3_wrapper").style.display = "none";
+    document.getElementById("quick_h4_wrapper").style.display = "none";
+
+    document.getElementById("odst_install").style.display = "none";
+    document.getElementById("reach_install").style.display = "none";
+    document.getElementById("reach_mp_install").style.display = "none";
+    document.getElementById("h1_install").style.display = "none";
+    document.getElementById("h1_mp_install").style.display = "none";
+    document.getElementById("h2_install").style.display = "none";
+    document.getElementById("h2_mp_install").style.display = "none";
+    document.getElementById("h3_install").style.display = "none";
+    document.getElementById("h3_mp_install").style.display = "none";
+    document.getElementById("h4_install").style.display = "none";
+    document.getElementById("h4_mp_install").style.display = "none";
+    
+    document.getElementById("quick_odst_install").style.display = "none";
+    document.getElementById("quick_reach_install").style.display = "none";
+    document.getElementById("quick_reach_mp_install").style.display = "none";
+    document.getElementById("quick_h1_install").style.display = "none";
+    document.getElementById("quick_h1_mp_install").style.display = "none";
+    document.getElementById("quick_h2_install").style.display = "none";
+    document.getElementById("quick_h2_mp_install").style.display = "none";
+    document.getElementById("quick_h3_install").style.display = "none";
+    document.getElementById("quick_h3_mp_install").style.display = "none";
+    document.getElementById("quick_h4_install").style.display = "none";
+    document.getElementById("quick_h4_mp_install").style.display = "none";
+
+    document.getElementById("other_mods_box").innerHTML = "";
+    document.getElementById("current_mods_box").innerHTML = "";
+}
 
 function JoinServer(index){
-    // bring up popup confirming all the things you need to join the server
+    if (prompt_lock) return;
+    LockJoinPrompt();
     let server = current_servers[index];
+    current_join_url = server.join_link;
+    resetDetails();
+    document.getElementById("details_server_name").textContent = server.name;
+    if (isNullOrWhiteSpace(server.current_map_name))
+         document.getElementById("details_map_name").textContent = "Not in game for " + GetTimeSince(server.status_t);
+    else document.getElementById("details_map_name").textContent = server.current_map_name + " for " + GetTimeSince(server.status_t);
+    document.getElementById("details_player_count").textContent = "Players: " + server.player_count;
+    document.getElementById("details_created_t").textContent = "Started " + GetTimeSince(server.creation_t) + " ago by ";
+    document.getElementById("details_creator").textContent = server.creator;
+    document.getElementById("details_creator").href = server.creator_url;
+    document.getElementById("details_refresh_t").textContent = "last refreshed: " + GetTimeSince(server.refresh_t) + " ago";
+    document.getElementById("details_desc").innerHTML = server.description.replace(/\n/g, "<br/>");
+
+
+
+
+    if (!isNullOrWhiteSpace(server.current_workshop_id)){
+        let modWrapper = document.createElement("div");
+        modWrapper.className = "install_mod_wrapper";
+        let modLink = document.createElement("a");
+        modLink.className = "join-link";
+        modLink.textContent = server.current_map_name;
+        modLink.href = "steam://url/CommunityFilePage/" + server.current_workshop_id;
+        modWrapper.appendChild(modLink);
+        document.getElementById("current_mods_box").appendChild(modWrapper);
+    } else {
+        let modWrapper = document.createElement("div");
+        modWrapper.textContent = "no mod hosted...";
+        document.getElementById("current_mods_box").appendChild(modWrapper);
+    }
+
     // generate clickable links for required dlc
     server.mods.forEach(mod => {
+        let modWrapper = document.createElement("div");
+        modWrapper.className = "install_mod_wrapper";
         let modLink = document.createElement("a");
         modLink.className = "join-link";
         modLink.textContent = mod.name;
         modLink.href = "steam://url/CommunityFilePage/" + mod.workshop_id;
-        modsCell.appendChild(modLink);
+        modWrapper.appendChild(modLink);
+        document.getElementById("other_mods_box").appendChild(modWrapper);
     });
 
-    // present all workshop links for mods so users can download them if need be
+    server.current_required_dlc.forEach(dlc => {
+        if (dlc == "1064272"){ //odst
+            document.getElementById("quick_odst_wrapper").style.display = "inline-block";
+            document.getElementById("quick_odst_install").style.display = "inline-block";
+        } else if (dlc == "1064220" || dlc == "1097224"){ //reach
+            document.getElementById("quick_reach_wrapper").style.display = "inline-block";
+            document.getElementById("quick_reach_mp_install").style.display = "inline-block";
+            if (dlc == "1064220") document.getElementById("quick_reach_install").style.display = "inline-block";
+        } else if (dlc == "1064221" || dlc == "1080080"){ //h1
+            document.getElementById("quick_h1_wrapper").style.display = "inline-block";
+            document.getElementById("quick_h1_mp_install").style.display = "inline-block";
+            if (dlc == "1064221") document.getElementById("quick_h1_install").style.display = "inline-block";
+        } else if (dlc == "1064270" || dlc == "1097223"){ //h2
+            document.getElementById("quick_h2_wrapper").style.display = "inline-block";
+            document.getElementById("quick_h2_mp_install").style.display = "inline-block";
+            if (dlc == "1064270") document.getElementById("quick_h2_install").style.display = "inline-block";
+        } else if (dlc == "1064271" || dlc == "1097222"){ //h3
+            document.getElementById("quick_h3_wrapper").style.display = "inline-block";
+            document.getElementById("quick_h3_mp_install").style.display = "inline-block";
+            if (dlc == "1064271") document.getElementById("quick_h3_install").style.display = "inline-block";
+        } else if (dlc == "1064273" || dlc == "1097220"){ //h4
+            document.getElementById("quick_h4_wrapper").style.display = "inline-block";
+            document.getElementById("quick_h4_mp_install").style.display = "inline-block";
+            if (dlc == "1064273") document.getElementById("quick_h4_install").style.display = "inline-block";
+        }
+    });
 
-    let confirmJoin = confirm("Do you want to join the server: " + server.name + "?\nMake sure you have the required DLC and mods installed.");
-    if (confirmJoin){
-        // open the join link
-        window.open(server.join_link);
-    }
+    server.required_dlc.forEach(dlc => {
+        if (dlc == "1064272"){ //odst
+            document.getElementById("odst_wrapper").style.display = "inline-block";
+            document.getElementById("odst_install").style.display = "inline-block";
+        } else if (dlc == "1064220" || dlc == "1097224"){ //reach
+            document.getElementById("reach_wrapper").style.display = "inline-block";
+            document.getElementById("reach_mp_install").style.display = "inline-block";
+            if (dlc == "1064220") document.getElementById("reach_install").style.display = "inline-block";
+        } else if (dlc == "1064221" || dlc == "1080080"){ //h1
+            document.getElementById("h1_wrapper").style.display = "inline-block";
+            document.getElementById("h1_mp_install").style.display = "inline-block";
+            if (dlc == "1064221") document.getElementById("h1_install").style.display = "inline-block";
+        } else if (dlc == "1064270" || dlc == "1097223"){ //h2
+            document.getElementById("h2_wrapper").style.display = "inline-block";
+            document.getElementById("h2_mp_install").style.display = "inline-block";
+            if (dlc == "1064270") document.getElementById("h2_install").style.display = "inline-block";
+        } else if (dlc == "1064271" || dlc == "1097222"){ //h3
+            document.getElementById("h3_wrapper").style.display = "inline-block";
+            document.getElementById("h3_mp_install").style.display = "inline-block";
+            if (dlc == "1064271") document.getElementById("h3_install").style.display = "inline-block";
+        } else if (dlc == "1064273" || dlc == "1097220"){ //h4
+            document.getElementById("h4_wrapper").style.display = "inline-block";
+            document.getElementById("h4_mp_install").style.display = "inline-block";
+            if (dlc == "1064273") document.getElementById("h4_install").style.display = "inline-block";
+        }
+    });
 }
 
 
