@@ -87,12 +87,12 @@ function RegenerateServers(){
 
         let mapCell = document.createElement("td");
         let map2Cell = document.createElement("td");
-        if (server.current_required_dlc.length === 0 ){
+        if (server.mod_required_dlc.length === 0 ){
             mapCell.textContent = "MAIN MENU ";
             map2Cell.textContent = "not in game";
         } else {
-            mapCell.textContent = ResolveRequiredDLC(server.current_required_dlc[0]);
-            map2Cell.textContent = server.current_map_name + " (" + GetTimeSince(server.creation_t) + ")";
+            mapCell.textContent = ResolveRequiredDLC(server.mod_required_dlc[0]);
+            map2Cell.textContent = server.mod_name + " (" + GetTimeSince(server.creation_t) + ")";
         }
         row.appendChild(mapCell);
         row.appendChild(map2Cell);
@@ -104,8 +104,8 @@ function RegenerateServers(){
         server.mods.forEach(mod => {
             let modLink = document.createElement("a");
             modLink.className = "join-link";
-            modLink.textContent = mod.name;
-            modLink.href = "steam://url/CommunityFilePage/" + mod.workshop_id;
+            modLink.textContent = mod.mod_name;
+            modLink.href = "steam://url/CommunityFilePage/" + mod.mod_workshop_id;
             modsCell.appendChild(modLink);
         });
         row.appendChild(modsCell);
@@ -142,9 +142,8 @@ async function LoadServers(){
         ClearServers();
         // make request to backend to get server list
         let res = await fetch("http://localhost:3000/api/servers", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sample: "example" })
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
         });
         console.log("Fetched server res:", res);
         let data = await res.json();
@@ -157,11 +156,11 @@ async function LoadServers(){
             // parse creation time to timestamp
             let unique_set = new Set();
             for (const mod of server.mods) {
-                for (const item of mod.required_dlc) {
+                for (const item of mod.mod_required_dlc) {
                     unique_set.add(item);
             }}
             // convert set back to array
-            server.required_dlc = Array.from(unique_set);
+            server.mod_required_dlc = Array.from(unique_set);
             
             // generate creator url from invite link??
             let parts = server.join_link.split("/");
@@ -227,9 +226,9 @@ function JoinServer(index){
     current_join_url = server.join_link;
     resetDetails();
     document.getElementById("details_server_name").textContent = server.name;
-    if (isNullOrWhiteSpace(server.current_map_name))
+    if (isNullOrWhiteSpace(server.mod_name))
          document.getElementById("details_map_name").textContent = "Not in game for " + GetTimeSince(server.status_t);
-    else document.getElementById("details_map_name").textContent = server.current_map_name + " for " + GetTimeSince(server.status_t);
+    else document.getElementById("details_map_name").textContent = server.mod_name + " for " + GetTimeSince(server.status_t);
     document.getElementById("details_player_count").textContent = "Players: " + server.player_count;
     document.getElementById("details_created_t").textContent = "Started " + GetTimeSince(server.creation_t) + " ago by ";
     document.getElementById("details_creator").textContent = server.creator;
@@ -240,13 +239,13 @@ function JoinServer(index){
 
 
 
-    if (!isNullOrWhiteSpace(server.current_workshop_id)){
+    if (!isNullOrWhiteSpace(server.mod_workshop_id)){
         let modWrapper = document.createElement("div");
         modWrapper.className = "install_mod_wrapper";
         let modLink = document.createElement("a");
         modLink.className = "join-link";
-        modLink.textContent = server.current_map_name;
-        modLink.href = "steam://url/CommunityFilePage/" + server.current_workshop_id;
+        modLink.textContent = server.mod_name;
+        modLink.href = "steam://url/CommunityFilePage/" + server.mod_workshop_id;
         modWrapper.appendChild(modLink);
         document.getElementById("current_mods_box").appendChild(modWrapper);
     } else {
@@ -261,13 +260,13 @@ function JoinServer(index){
         modWrapper.className = "install_mod_wrapper";
         let modLink = document.createElement("a");
         modLink.className = "join-link";
-        modLink.textContent = mod.name;
-        modLink.href = "steam://url/CommunityFilePage/" + mod.workshop_id;
+        modLink.textContent = mod.mod_name;
+        modLink.href = "steam://url/CommunityFilePage/" + mod.mod_workshop_id;
         modWrapper.appendChild(modLink);
         document.getElementById("other_mods_box").appendChild(modWrapper);
     });
 
-    server.current_required_dlc.forEach(dlc => {
+    server.mod_required_dlc.forEach(dlc => {
         if (dlc == "1064272"){ //odst
             document.getElementById("quick_odst_wrapper").style.display = "inline-block";
             document.getElementById("quick_odst_install").style.display = "inline-block";
@@ -294,7 +293,7 @@ function JoinServer(index){
         }
     });
 
-    server.required_dlc.forEach(dlc => {
+    server.mod_required_dlc.forEach(dlc => {
         if (dlc == "1064272"){ //odst
             document.getElementById("odst_wrapper").style.display = "inline-block";
             document.getElementById("odst_install").style.display = "inline-block";
